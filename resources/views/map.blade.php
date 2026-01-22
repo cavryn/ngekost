@@ -95,9 +95,6 @@ document.getElementById("locationForm").addEventListener("submit", function(e) {
     .catch(err => console.error(err));
 });
 
-// ==============================================================
-// 3. LOAD SEMUA LOKASI DARI DATABASE
-// ==============================================================
 
 let markers = [];
 
@@ -126,9 +123,6 @@ function loadLocations() {
 
 loadLocations();
 
-// ==============================================================
-// 4. RUTE OTOMATIS DENGAN OSRM
-// ==============================================================
 
 function routeTo(lat, lng) {
     if (!mainMarker) {

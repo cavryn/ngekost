@@ -17,6 +17,9 @@
                 <a href="{{ route('login') }}" class="text-dark">Login</a>
             </div>
         </div>
+        @auth
+@endauth
+
     </nav>
 
 

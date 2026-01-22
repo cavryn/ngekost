@@ -3,51 +3,53 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    public function show() {
-        $user = Auth::user();
-        return view('profile.show', compact('user'));
+    /**
+     * GET /profile
+     */
+    public function index()
+    {
+        $profile = Profile::where('user_id', Auth::id())->first();
+
+        return view('profile.index', compact('profile'));
     }
 
-    public function edit() {
-        $user = Auth::user();
-        return view('profile.edit', compact('user'));
-    }
+    /**
+     * POST /profile
+     */
+public function update(Request $request)
+{
+    $request->validate([
+        'usia'           => 'nullable|integer|min:15|max:100',
+        'jenis_kelamin'  => 'nullable|in:L,P',
+        'domisili'       => 'nullable|string|max:100',
+        'deskripsi_diri' => 'nullable|string|max:500',
+        'foto'           => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
 
-    public function update(Request $request) {
-        $request->validate([
-            'name'  => 'required|max:255',
-            'phone' => 'nullable|max:20',
-            'bio'   => 'nullable|max:500',
-        ]);
+    $profile = Profile::firstOrCreate(
+        ['user_id' => Auth::id()]
+    );
 
-        $user = Auth::user();
-        $user->update($request->only('name', 'phone', 'bio'));
+if ($request->hasFile('foto')) {
+    $filename = time().'.'.$request->foto->extension();
+    $request->foto->storeAs('profile', $filename, 'public');
+    $profile->foto = $filename;
+}
 
-        return redirect()->route('profile.show')->with('success', 'Profil berhasil diperbarui!');
-    }
 
-    public function updatePhoto(Request $request) {
-        $request->validate([
-            'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
+    $profile->update($request->only([
+        'usia',
+        'jenis_kelamin',
+        'domisili',
+        'deskripsi_diri',
+    ]));
 
-        $user = Auth::user();
+    return redirect()->back()->with('success', 'Profile berhasil diperbarui');
+}
 
-        if ($user->photo) {
-            Storage::delete('public/profile/'.$user->photo);
-        }
-
-        $filename = time().'.'.$request->photo->extension();
-        $request->photo->storeAs('public/profile', $filename);
-
-        $user->photo = $filename;
-        $user->save();
-
-        return redirect()->route('profile.show')->with('success', 'Foto profil diperbarui!');
-    }
 }

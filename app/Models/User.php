@@ -28,8 +28,14 @@ class User extends Authenticatable
     ];
 
     // 🔗 Relasi ke profile (1 user punya 1 profile)
-    public function profile()
-    {
-        return $this->hasOne(Profile::class);
-    }
+public function profile()
+{
+    return $this->hasOne(\App\Models\Profile::class);
+}
+
+public function laporans()
+{
+    return $this->hasMany(Laporan::class);
+}
+
 }
